@@ -29,24 +29,27 @@ class FileCreateView(APIView):
    def post(self,request):
       print(request.data)
       attached_file = request.FILES['attached_file']
+      
       #queryset = File.objects.all()
       tools = pyocr.get_available_tools()
       tool = tools[0]
       langs = tool.get_available_languages()
       lang = langs[0]
       txt = tool.image_to_string(Image.open(attached_file),lang = lang,builder=pyocr.builders.TextBuilder())
+      img = Image.open(attached_file)  
+      result = pytesseract.image_to_string(img)  
       print(txt)
-      return Response({"msg":txt}, status=200)
+      return Response({"pyocr":txt, "pytesseract":result}, status=200)
    #  print('xyz')
    #  queryset = File.objects.all()
    #  serializer_class = FileSerializer
    #  permission_classes = (permissions.AllowAny, )
    # #  print(queryset[30].file)
-      image=cv2.imread(queryset[30].file,1)
-      string=pytesseract.image_to_string(image)
-      print(string)
+      # image=cv2.imread(queryset[30].file,1)
+      # string=pytesseract.image_to_string(image)
+      # print(string)
    #  length = len(queryset)
-      img = Image.open(attached_file)  
+      # img = Image.open(attached_file)  
    # #  print(img)
    # # #  pytesseract.pytesseract.tesseract_cmd ='C:/Program Files (x86)/Tesseract-OCR/tesseract.exe'
       result = pytesseract.image_to_string(img)  
