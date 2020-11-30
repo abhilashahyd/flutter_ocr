@@ -4,69 +4,77 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-      
-        primarySwatch: Colors.blue,
-      visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
+  runApp(MyHomePage());
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  
   File file;
   final picker = ImagePicker();
-  var pickedFile;
   var result;
 
  void _choose() async {
-   pickedFile = await picker.getImage(source: ImageSource.gallery);
+ final  pickedFile = await picker.getImage(source: ImageSource.gallery);
    setState(() {
-        file = pickedFile;
+        if(pickedFile != null){
+          file = File(pickedFile.path);
+        }else{
+          print('No image selected');
+        }
       });
+   print(file);
  }
-
- void _upload() {
+final baseUrl = 'http://flutterocr.walkingtree.tech/';
+ void _upload() async{
+   print(file);
    if (file == null) return;
    String base64Image = base64Encode(file.readAsBytesSync());
    String fileName = file.path.split("/").last;
+   try {
+     Map data = {"attached_file": base64Image, "remarks": fileName };
+     var body = json.encode(data);
+     final http.Response response = await http.post(
+         '$baseUrl/api/create',
+       headers: <String, String>{
+         'Content-Type': 'application/json; charset=UTF-8',
+       },
+       body: body
+     );
+     print(json.decode(response.body).toString());
+     // Map data = {"attached_file": base64Image, "remarks": fileName };
+     // var body = json.encode(data);
+     // var response =await http.post('$baseUrl/api/create', body : body);
+     // Map<String, dynamic> res =  json.decode(response.body);
+     // print(response.statusCode);
+     // print(response);
+     // print(res);
+     // setState(() {
+     //   result = jsonDecode(response.toString());
+     // });
+     // print('result + $result ');
+   } on Error catch(e) {
+     print(e);
+   }
+   // var response = http.post('$baseUrl/api/create', body: {
+   //   "attached_file": base64Image,
+   //   "remarks": fileName,
+   //  }).then((res) {
+   //   print(res.statusCode);
+   // }).catchError((err) {
+   //   print(err);
+   // });
 
-   var response = http.post('localhost:8000', body: {
-     "attached_file": base64Image,
-     "remarks": fileName,
-   }).then((res) {
-     print(res.statusCode);
-   }).catchError((err) {
-     print(err);
-   });
-   setState(() {
-        result = response;
-      });
-   print(result);
  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
+    return MaterialApp(
+      home: Scaffold(
+      // appBar: AppBar(),
       body: Column(
         children: <Widget>[
           Row(
@@ -81,16 +89,22 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: _upload,
                 child: Text('Upload Image'),
               ),
-              Container(
-                child: Text(result),
+              result == null ? Text('Error in Detecting') : Container(
+                height: 100,width: 50,
+                child: Text(result.toString()),
               )
             ],
           ),
           file == null
-            ? Text('No Image Selected') 
-            : Image.file(file)
+            ? Text('No Image Selected')
+            : SizedBox(
+            height: 130,
+            width: 100,
+            child: Image.file(file),
+          )
         ],
       ),
+    ),
     );
   }
 }
