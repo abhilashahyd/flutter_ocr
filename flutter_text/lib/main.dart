@@ -29,46 +29,30 @@ class _MyHomePageState extends State<MyHomePage> {
       });
    print(file);
  }
-final baseUrl = 'http://flutterocr.walkingtree.tech/';
+// final baseUrl = 'http://flutterocr.walkingtree.tech/';
+  final baseUrl = 'http://10.0.2.2:8000';
  void _upload() async{
    print(file);
    if (file == null) return;
    String base64Image = base64Encode(file.readAsBytesSync());
-   String fileName = file.path.split("/").last;
+   // String fileName = file.path.split("/").last;
+
    try {
-     Map data = {"attached_file": base64Image, "remarks": fileName };
+     Map data = {'attached_file': base64Image };
      var body = json.encode(data);
-     final http.Response response = await http.post(
-         '$baseUrl/api/create',
+
+     final  response = await http.post('$baseUrl/api/create',
        headers: <String, String>{
          'Content-Type': 'application/json; charset=UTF-8',
        },
        body: body
      );
-     print(json.decode(response.body).toString());
-     // Map data = {"attached_file": base64Image, "remarks": fileName };
-     // var body = json.encode(data);
-     // var response =await http.post('$baseUrl/api/create', body : body);
-     // Map<String, dynamic> res =  json.decode(response.body);
-     // print(response.statusCode);
-     // print(response);
-     // print(res);
-     // setState(() {
-     //   result = jsonDecode(response.toString());
-     // });
-     // print('result + $result ');
-   } on Error catch(e) {
+     print(response.statusCode);
+     print(response.body.toString());
+
+ } on Error catch(e) {
      print(e);
    }
-   // var response = http.post('$baseUrl/api/create', body: {
-   //   "attached_file": base64Image,
-   //   "remarks": fileName,
-   //  }).then((res) {
-   //   print(res.statusCode);
-   // }).catchError((err) {
-   //   print(err);
-   // });
-
  }
   @override
   Widget build(BuildContext context) {
