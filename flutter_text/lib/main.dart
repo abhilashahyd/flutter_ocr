@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+
 void main() {
   runApp(MyHomePage());
 }
@@ -18,37 +18,31 @@ class _MyHomePageState extends State<MyHomePage> {
   final picker = ImagePicker();
   var result;
 
- void _choose() async {
- final  pickedFile = await picker.getImage(source: ImageSource.gallery);
-   setState(() {
-        if(pickedFile != null){
-          file = File(pickedFile.path);
-        }else{
-          print('No image selected');
-        }
-      });
-   print(file);
+  void _choose() async {
+   final  pickedFile = await picker.getImage(source: ImageSource.gallery);
+     setState(() {
+          if(pickedFile != null){
+            file = File(pickedFile.path);
+          }else{
+            print('No image selected');
+          }
+        });
+     print(file);
  }
-// final baseUrl = 'http://flutterocr.walkingtree.tech/';
-  final baseUrl = 'http://10.0.2.2:8000';
+final baseUrl = 'http://flutterocr.walkingtree.tech/';
+  // final baseUrl = 'http://10.0.2.2:8000';
  void _upload() async{
    print(file);
    if (file == null) return;
-   String base64Image = base64Encode(file.readAsBytesSync());
-   // String fileName = file.path.split("/").last;
-
-   try {
-     Map data = {'attached_file': base64Image };
-     var body = json.encode(data);
-
-     final  response = await http.post('$baseUrl/api/create',
-       headers: <String, String>{
-         'Content-Type': 'application/json; charset=UTF-8',
-       },
-       body: body
-     );
+   try
+   {
+     var postUri = Uri.parse('$baseUrl/api/create');
+     http.MultipartRequest request = new http.MultipartRequest("POSt", postUri);
+     http.MultipartFile multipartFile = await http.MultipartFile.fromPath("attached_file", file.path);
+     request.files.add(multipartFile);
+     http.StreamedResponse response = await request.send();
      print(response.statusCode);
-     print(response.body.toString());
+     print(response.stream.bytesToString().then((value) => print(value)));
 
  } on Error catch(e) {
      print(e);
@@ -57,8 +51,9 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
-      // appBar: AppBar(),
+      appBar: AppBar(),
       body: Column(
         children: <Widget>[
           Row(
@@ -73,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: _upload,
                 child: Text('Upload Image'),
               ),
-              result == null ? Text('Error in Detecting') : Container(
+              result == null ? Container() : Container(
                 height: 100,width: 50,
                 child: Text(result.toString()),
               )
@@ -85,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
             height: 130,
             width: 100,
             child: Image.file(file),
-          )
+          ),
         ],
       ),
     ),
