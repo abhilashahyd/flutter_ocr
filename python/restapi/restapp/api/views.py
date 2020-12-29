@@ -4,7 +4,6 @@ from PIL import Image
 import sys
 import pyocr
 import pyocr.builders
-import base64
 import pytesseract
 
 from rest_framework.views import APIView

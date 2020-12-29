@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -29,8 +30,16 @@ class _MyHomePageState extends State<MyHomePage> {
         });
      print(file);
  }
-final baseUrl = 'http://flutterocr.walkingtree.tech/';
-  // final baseUrl = 'http://10.0.2.2:8000';
+// final baseUrl = 'http://flutterocr.walkingtree.tech/';
+  final baseUrl = 'http://10.0.2.2:8000';
+  var text ;
+  void getResult(res){
+    setState(() {
+      text = res;
+      text = jsonDecode(text);
+      print(text['result']);
+    });
+  }
  void _upload() async{
    print(file);
    if (file == null) return;
@@ -42,9 +51,8 @@ final baseUrl = 'http://flutterocr.walkingtree.tech/';
      request.files.add(multipartFile);
      http.StreamedResponse response = await request.send();
      print(response.statusCode);
-     print(response.stream.bytesToString().then((value) => print(value)));
-
- } on Error catch(e) {
+     response.stream.bytesToString().then((value) => getResult(value));
+   } on Error catch(e) {
      print(e);
    }
  }
@@ -68,18 +76,17 @@ final baseUrl = 'http://flutterocr.walkingtree.tech/';
                 onPressed: _upload,
                 child: Text('Upload Image'),
               ),
-              result == null ? Container() : Container(
-                height: 100,width: 50,
-                child: Text(result.toString()),
-              )
             ],
           ),
-          file == null
-            ? Text('No Image Selected')
-            : SizedBox(
-            height: 130,
-            width: 100,
+          file == null ? Text('No Image Selected') :
+          SizedBox(
+            height: 250,
+            width: 150,
             child: Image.file(file),
+          ),
+          text == null ? Container() : Container(
+            height: 100,width: 150,
+            child: Text(text['result']),
           ),
         ],
       ),
