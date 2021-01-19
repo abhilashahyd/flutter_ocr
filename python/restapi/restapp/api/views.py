@@ -39,4 +39,4 @@ class FileCreateView(APIView):
       lang = langs[0]
       txt = tool.image_to_string(Image.open(attached_file),lang = lang,builder=pyocr.builders.TextBuilder())
       return Response({"result":txt}, status=200)
-   
+    

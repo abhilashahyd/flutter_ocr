@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -64,20 +65,24 @@ class _MyHomePageState extends State<MyHomePage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          title: Center(child: Text('Flutter OCR',)),
+        ),
         body: Column(
           children: <Widget>[
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 RaisedButton(
+                  color: Colors.blue,
                   onPressed: _choose,
-                  child: Text('Choose Image'),
+                  child: Text('Choose Image',style: TextStyle(color: Colors.white),),
                 ),
                 SizedBox(width: 10.0),
                 RaisedButton(
+                  color: Colors.blue,
                   onPressed: _upload,
-                  child: Text('Upload Image'),
+                  child: Text('Upload Image',style: TextStyle(color: Colors.white),),
                 ),
               ],
             ),
@@ -93,7 +98,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 : Container(
                     height: 100,
                     width: 150,
-                    child: Text(text['result']),
+                    child: Column(
+                      children: [
+                        Text('Extracted text',style: TextStyle(fontWeight: FontWeight.bold),),
+                        SizedBox(height: 20,),
+                        Text(text['result'],style: TextStyle(fontStyle: FontStyle.italic),),
+                      ],
+                    ),
                   ),
           ],
         ),
